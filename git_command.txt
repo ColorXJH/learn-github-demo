@@ -1,0 +1,83 @@
+--git的命令行指令介绍
+
+git
+本地库有三个不同的区域
+    工作区（用来编辑）     暂存区（比对文件）     存储区（存储数据）
+
+    clone:将远程仓库内容保存到本地仓库
+    push:将本地仓库的内容发布到远程仓库
+    add:将当前工作区的文件提交到暂存区进行比对操作
+    commit:将暂存区的内容提交到存储区，会产生一个版本号
+    pull:将远程仓库的文件变化拉取到本地仓库
+
+
+    仓库操作
+    git --version:查看当前的git版本
+    git init:在当前文件夹下初始化git仓库，并做一次初始化提交
+    git clone https://xxx.xxx.xx.git rename: 将远程的仓库克隆到本地，同时也可以更改仓库的名称
+    git config 配置名称  配置值  :在仓库的根目录（就是包含.git文件夹的那个目录）设置git的一些属性配置
+        git config user.name ColorXJH
+        git config --get user.name
+        git config --global user.name "Test":设置全局属性
+                本地的配置在各个仓库的/.git文件夹下面的config文件中
+                全局配置在电脑的c盘的用户文件夹下的某个用单独的用户的.gitconfig文件中
+
+    文件操作
+    git status:在某个仓库文件夹下使用,查看当前文件夹下对比的状态
+    git add 文件名称:将某个文件从工作区提交到git的暂存区
+    git rm --cached 文件名称:将暂存区的文件移动回来到工作区（只是逻辑上的概念）
+        git add *.txt;  使用通配符提交内容到暂存区
+    git commit -m 注释:将文件提交到存储区，相当于依次提交操作，会产生一个版本号
+    git log:显示当前的提交日志  head->master 从上到下依次是最新的提交时间依次递减
+        git log --oneline:显示一行，不讲版本号显示全（仅仅显示前7个）
+        新增 修改 删除之后 都要 git add *.txt -->git commit -m "xxx"
+        然后查看 git status     git log --oneline
+
+
+
+    文件操作--误删除
+        在本地的git仓库里面，一不小心将文件删除了，如何恢复，（我们的删除是在工作区域删除的，但是我们之前已经将其提交到存储区了）
+        解决办法：将存储区的文件恢复到工作区就好了
+            git restore a.txt  --新版
+            git checkout a.txt --旧版
+        如果被删除的文件也已经提交了，那么该如何恢复？（已经 git commit -m “xxx”了）
+        解决办法。找到git 日志的历史记录执行回滚
+            git log --oneline
+            拿到想要的版本号，执行重置
+            git reset --hard
+            副作用:可能会干掉我们之前的提交过程
+        较好的办法：使用命令git revert+版本号（注意这里的版本号是过程的下一次提交）
+            比如刚开始新增了a.txt 提交后产生了一个版本号
+            然后删除了a.txt 提交后又产生了一个版本号
+            我们希望恢复a.txt,同时不要干掉a.txt这个新增的过程
+            就绪呀拿到a.txt新增提交之后的下一个版本号，也就是删除的那个版本号
+                i 插入： esc： 退出
+                :wq :修改之后的保存退出
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
