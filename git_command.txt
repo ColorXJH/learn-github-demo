@@ -44,17 +44,84 @@ git
         解决办法。找到git 日志的历史记录执行回滚
             git log --oneline
             拿到想要的版本号，执行重置
-            git reset --hard
+            git reset --hard +版本号
             副作用:可能会干掉我们之前的提交过程
         较好的办法：使用命令git revert+版本号（注意这里的版本号是过程的下一次提交）
             比如刚开始新增了a.txt 提交后产生了一个版本号
             然后删除了a.txt 提交后又产生了一个版本号
             我们希望恢复a.txt,同时不要干掉a.txt这个新增的过程
-            就绪呀拿到a.txt新增提交之后的下一个版本号，也就是删除的那个版本号
+            就拿到a.txt新增提交之后的下一个版本号，也就是删除的那个版本号
                 i 插入： esc： 退出
                 :wq :修改之后的保存退出
 
 
+    分支操作:
+        git branch +分支的名称:创建新的分支
+            命令行中的分支是基于提交操作的，如果没有提交操作，就无法创建分支
+                解决办法。先在主分支创建一个文件，提交之后然乎再次创建一个分支
+            关于版本号问题：一共40位置：前两位属于.git/objects/下面的文件夹，后38位属于文件名称
+                分支是基于提交的，新的分支的版本和master的版本是一直的一开始的时候，所以说明分支是基于提交的
+        git branch --v:查看当前有几个分支
+            列出的分支中有星号的代表为当前的分支
+        git checkout +分支名称：切换到其他分支
+        git checkout -b +分支名称：合并上方两个操作，创建分支并切换到该分支
+        git branch -d +分支名称：删除特定的分支
+
+    分支操作：合并与冲突
+        合并：
+            git merge +分支名称：将分支名称合并到当前版本中
+                如果出现冲突则在冲突的文件中重新修改信息，然后在当前版本中重新git add这些文件并git commit
+                即修改后重新增加并提交这些冲突文件（在merge之后就会出现比对冲突的并记录到冲突的文件中）
+                这样操作完成之后当前的合并状态就会结束,重新回到分支状态（master|merging->master）
+
+
+    标签指令：
+        git log +版本号：将本次版本提交以及之前的版本提交历史都展现出啦
+        对于版本号太长且不知道这个版本干了啥，我们可以将这些这些版本打上标签，以后就可以通过标签别名访问
+        git tag:显示已经打上标签的版本
+        git tag +标签名称   +版本号：将某次版本打上标签，方便以后通过标签访问
+            git log +标签名称：对该标签以及之前的提交的查询，等同于 git log +提交版本号
+            之后使用git log --oneline 命令就会有标签显示
+        git tag -d 标签名称：删除标签
+        标签还可以用来创建分支，其实我们的分支就是引用了一个提交了的版本号，而我们的标签就是给版本号增加了别名，
+        所以创建分支也可以这样： git checkout -b +标签名称：表示对当前这个比奥前做在的版本号的提交进行分支创建
+            新的分支的名称就是我们标签的名称，可以使用 git branch -v查看各个分支
+
+
+    远程仓库：
+        我们可以通过克隆的命令方式将github等远程地址的仓库克隆到本地
+        在克隆到本地的仓库中，他的.git文件夹中有一些配置需要我们注意：
+        在配置文件config中，包含了
+            [remote "origin"]
+            	url = https://github.com/ColorXJH/remote-test.git
+            他表示我们的远程仓库的别名是origin,在使用的时候可以使用该名称代替下方的url地址
+            同时如果我们没有从远程克隆而是在本地有一个而仓库，但是又想将本地仓库与远程仓库相关联，
+            就可以使用如下命令：git remote add origin +远程仓库url地址：将远程仓库地址则更加关联到本地仓库
+            同时：git remote remove origin:表示删除对origin对应的远程仓库的依赖，如果想要重新添加回去请参考上条指令
+            git remote rename oldName  newName:重新命名本地仓库中的远程仓库名称，方便见名知意
+        git push origin:将本地仓库内容推送到远程，此处的origin代表的是本地关联的哪一个远程仓库，是config配置文件中配置的remote的值
+            如果你是https的请求会让你验证github用户名/密码（目前已经不支持这种方式，推荐使用证书和个人访问令牌）
+                如何使用个人访问令牌：
+                    1将个人访问令牌设置为Git的凭据:git config --global credential.helper store
+                    2将个人访问令牌添加为远程仓库的URL:git remote set-url origin https://username:token@github.com/ColorXJH/remote-test.git
+                    3:现在，当您运行git push origin命令时，Git将使用您的个人访问令牌进行身份验证
+                如果你是ssh方式需要你提供认证证书
+                如何生成认证证书：
+                    1：本地cmd生成一个ssh的key:ssh-keygen -t rsa -Cgit@github.com:ColorXJH/remote-test.git
+                    2: 到本机：/c/Users/ColorXJH/.ssh/id_rsa.pub 找到这个公钥并复制到github生成key
+                    3: 再次执行git push origin则就不需要再次验证了
+                        如果推送报错，执行：ssh-keygen -R github.com，然后再次推送（拉取）
+
+        git pull origin:拉去远程地址仓库同步到本地仓库，这里的origin是配置config中的remote指代的名称
+
+
+
+    Gitlab-搭建自己的代码托管平台
+        https://about.gitlab.com/
+        在docker或者linux中安装gitlab,
+        具体集成方法参考网上文档
+
+    总结：理解好git的版本号是重点
 
 
 
